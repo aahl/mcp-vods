@@ -1,0 +1,21 @@
+[project]
+name = "mcp-server"
+version = "0.0.0"
+description = "MCP Server"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = ["mcp", "llm"]
+license = { text = "MIT" }
+dependencies = [
+    "fastmcp>=2.0.0",
+]
+
+[project.urls]
+Repository = "https://github.com/aahl/mcp-server"
+
+[project.scripts]
+mcp-server = "mcp_server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
