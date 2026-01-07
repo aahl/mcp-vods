@@ -1,20 +1,22 @@
 [project]
-name = "mcp-server"
-version = "0.0.0"
-description = "MCP Server"
+name = "mcp-vods"
+version = "0.1.0"
+description = "MCP Server for Binge-watch"
 readme = "README.md"
 requires-python = ">=3.10"
-keywords = ["mcp", "llm"]
+keywords = ["mcp", "llm", "tv", "movie", "video", "media", "binge"]
 license = { text = "MIT" }
 dependencies = [
     "fastmcp>=2.0.0",
+    "PyYAML>=6.0.0",
+    "requests>=2.32.0",
 ]
 
 [project.urls]
-Repository = "https://github.com/aahl/mcp-server"
+Repository = "https://github.com/aahl/mcp-vods"
 
 [project.scripts]
-mcp-server = "mcp_server:main"
+mcp-vods = "mcp_vods:main"
 
 [build-system]
 requires = ["hatchling"]
