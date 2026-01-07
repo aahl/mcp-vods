@@ -1,10 +1,11 @@
 services:
-  mcp-server:
-    container_name: mcp-server
-    image: ghcr.nju.edu.cn/aahl/mcp-server
+  mcp-vods:
+    container_name: mcp-vods
+    image: ghcr.nju.edu.cn/aahl/mcp-vods
     ports:
-      - 8809:80
+      - 8821:80
     environment:
+      LUNA_BASE_URL: ${LUNA_BASE_URL}
       TZ: Asia/Shanghai
       UV_INDEX_URL: https://mirrors.ustc.edu.cn/pypi/simple
     restart: always

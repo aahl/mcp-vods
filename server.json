@@ -1,23 +1,23 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.aahl/mcp-server",
-  "title": "MCP Server",
-  "description": "MCP Server",
+  "name": "io.github.aahl/mcp-vods",
+  "title": "MCP Server for Binge-watch",
+  "description": "MCP Server for Binge-watch/MoonTV/LunaTV",
   "repository": {
-    "url": "https://github.com/aahl/mcp-server",
+    "url": "https://github.com/aahl/mcp-vods",
     "source": "github"
   },
-  "version": "0.0.0",
+  "version": "0.1.1",
   "packages": [
     {
       "registryType": "pypi",
-      "identifier": "mcp-server",
-      "version": "0.0.0",
+      "identifier": "mcp-vods",
+      "version": "0.1.1",
       "transport": {"type": "stdio"}
     },
     {
       "registryType": "oci",
-      "identifier": "ghcr.io/aahl/mcp-server:latest",
+      "identifier": "ghcr.io/aahl/mcp-vods:latest",
       "transport": {"type": "stdio"}
     }
   ]
