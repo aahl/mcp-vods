@@ -7,18 +7,12 @@ from pydantic import Field
 MOON_BASE_URL = str(os.getenv("MOON_BASE_URL", "") or os.getenv("LUNA_BASE_URL", "")).rstrip("/")
 
 
-def add_tools(mcp: FastMCP):
-
-    SESSION = requests.session()
+def add_tools(mcp: FastMCP, logger=None):
 
     if not MOON_BASE_URL:
-        @mcp.tool(
-            title="MoonTV/LunaTV地址未配置提示",
-            description="MoonTV/LunaTV地址未配置提示",
-        )
-        def moon_warning():
-            return "MoonTV/LunaTV地址未配置，请配置`MOON_BASE_URL`环境变量"
         return
+
+    SESSION = requests.session()
 
     if pwd := os.getenv("LUNA_PASSWORD"):
         SESSION.post(
@@ -33,11 +27,11 @@ def add_tools(mcp: FastMCP):
         title="搜索影视",
         description="搜索电影、电视剧、综艺节目、动漫、番剧、短剧等。\n"
                     "你可以说:\n"
-                    "- 我想看仙逆最新一集\n"
+                    "- 我想看《仙逆》最新一集\n"
                     "- 凡人修仙传更新到多少集了\n",
     )
     def moon_search(
-        keyword: str = Field(description="搜索关键词，如电影名称"),
+        keyword: str = Field(description="搜索关键词，如电影名称，不要包含书名号、引号等"),
     ):
         resp = SESSION.get(
             f"{MOON_BASE_URL}/api/search",
@@ -48,7 +42,7 @@ def add_tools(mcp: FastMCP):
         try:
             data = resp.json() or {}
         except Exception as exc:
-            return {"text": resp.text(), "error": str(exc)}
+            return {"text": resp.text, "error": str(exc)}
         results = data.get("results", [])
         for item in results:
             episodes = item.pop("episodes") or []
@@ -57,7 +51,7 @@ def add_tools(mcp: FastMCP):
                 "episodes_count": len(episodes),
                 "episodes_newest": dict(list(episodes.items())[-3:]),
             })
-        return yaml.dump(results or data, allow_unicode=True)
+        return yaml.dump(results or data, allow_unicode=True, sort_keys=False)
 
     @mcp.tool(
         title="影视详情",
@@ -78,7 +72,7 @@ def add_tools(mcp: FastMCP):
         try:
             data = resp.json() or {}
         except Exception as exc:
-            return {"text": resp.text(), "error": str(exc)}
+            return {"text": resp.text, "error": str(exc)}
         episode = int(episode)
         episodes = data.get("episodes") or []
         episodes = dict(zip(range(1, len(episodes) + 1), episodes))
@@ -99,4 +93,4 @@ def add_tools(mcp: FastMCP):
             data.update({
                 "episodes": episodes,
             })
-        return yaml.dump(data, allow_unicode=True)
+        return yaml.dump(data, allow_unicode=True, sort_keys=False)

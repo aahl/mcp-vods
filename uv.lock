@@ -766,9 +766,10 @@ wheels = [
 
 [[package]]
 name = "mcp-vods"
-version = "0.1.1"
+version = "0.1.2"
 source = { editable = "." }
 dependencies = [
+    { name = "cachetools" },
     { name = "fastmcp" },
     { name = "pyyaml" },
     { name = "requests" },
@@ -776,6 +777,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cachetools", specifier = ">=6.2.0" },
     { name = "fastmcp", specifier = ">=2.0.0" },
     { name = "pyyaml", specifier = ">=6.0.0" },
     { name = "requests", specifier = ">=2.32.0" },

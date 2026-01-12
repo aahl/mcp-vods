@@ -13,9 +13,7 @@
       "command": "uvx",
       "args": ["mcp-vods"],
       "env": {
-        "LUNA_BASE_URL": "your-lunaTV-base-url", # 别名: MOON_BASE_URL, 如: http://localhost:3000
-        "LUNA_USERNAME": "your-lunaTV-username", # LunaTV 登录账号，可选
-        "LUNA_PASSWORD": "your-lunaTV-password", # LunaTV 登录密码，可选
+        "SEARCH_CACHE_TTL": "5"
       }
     }
   }
@@ -38,6 +36,20 @@ docker-compose up -d
   }
 }
 ```
+
+
+### ⚙️ 环境变量
+
+#### 免配置开箱即用
+- `VOD_CONFIG_URL`: [远程配置文件](https://github.com/hafrey1/LunaTV-config)URL，可选(默认已内置)
+- `SEARCH_CACHE_TTL`: 搜索缓存TTL，可选(默认5分钟)
+- `MAX_SEARCH_SITES`: 搜索次数限制，可选(默认10)
+
+#### 使用已部署的LunaTV/MoonTV
+- `MOON_BASE_URL`: 已部署的MoonTV服务地址，可选，如: http://localhost:3000
+- `LUNA_BASE_URL`: 已部署的LunaTV服务地址，可选
+- `LUNA_USERNAME`: LunaTV 登录账号，可选
+- `LUNA_PASSWORD`: LunaTV 登录密码，可选
 
 
 ## 🔗 Links
