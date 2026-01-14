@@ -1,4 +1,4 @@
-name: Trading with Claude code
+name: Run Claude code
 
 on:
   schedule:
@@ -12,12 +12,9 @@ on:
         description: Model for Claude code
         default: ''
 
-env:
-  CLAUDE_PROMPT: ${{ inputs.prompt || secrets.CLAUDE_PROMPT || vars.CLAUDE_PROMPT }}
-
 jobs:
   claude:
-    if: ${{ env.CLAUDE_PROMPT }}
+    if: ${{ inputs.prompt || secrets.CLAUDE_PROMPT || vars.CLAUDE_PROMPT }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -61,7 +58,7 @@ jobs:
           ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ inputs.model || vars.ANTHROPIC_DEFAULT_HAIKU_MODEL || vars.CLAUDE_DEFAULT_MODEL }}
           ANTHROPIC_DEFAULT_SONNET_MODEL: ${{ inputs.model || vars.ANTHROPIC_DEFAULT_SONNET_MODEL || vars.CLAUDE_DEFAULT_MODEL }}
         with:
-          prompt: ${{ env.CLAUDE_PROMPT }}
+          prompt: ${{ inputs.prompt || secrets.CLAUDE_PROMPT || vars.CLAUDE_PROMPT }}
           show_full_output: ${{ vars.CLAUDE_FULL_OUTPUT || 'false' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
