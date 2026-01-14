@@ -17,14 +17,17 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-    if: ${{ inputs.prompt || secrets.CLAUDE_PROMPT || vars.CLAUDE_PROMPT }}
+    env:
+      CLAUDE_PROMPT: ${{ inputs.prompt || secrets.CLAUDE_PROMPT || vars.CLAUDE_PROMPT }}
     steps:
       - name: Install uv
+        if: ${{ env.CLAUDE_PROMPT }}
         uses: astral-sh/setup-uv@v6
         with:
           enable-cache: false
 
       - name: Set up Python & Tools
+        if: ${{ env.CLAUDE_PROMPT }}
         run: |
           echo "CURRENT_TIME=`date`" >> $GITHUB_ENV
           uv python install
@@ -33,6 +36,7 @@ jobs:
           uv tool list
 
       - name: Create MCP Config
+        if: ${{ env.CLAUDE_PROMPT }}
         run: |
           cat > /tmp/mcp-config.json << 'EOF'
           {
@@ -51,6 +55,7 @@ jobs:
 
       - uses: anthropics/claude-code-action@v1
         id: claude
+        if: ${{ env.CLAUDE_PROMPT }}
         timeout-minutes: 45
         env:
           ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL || vars.ANTHROPIC_BASE_URL }}
@@ -58,7 +63,7 @@ jobs:
           ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ inputs.model || vars.ANTHROPIC_DEFAULT_HAIKU_MODEL || vars.CLAUDE_DEFAULT_MODEL }}
           ANTHROPIC_DEFAULT_SONNET_MODEL: ${{ inputs.model || vars.ANTHROPIC_DEFAULT_SONNET_MODEL || vars.CLAUDE_DEFAULT_MODEL }}
         with:
-          prompt: ${{ inputs.prompt || secrets.CLAUDE_PROMPT || vars.CLAUDE_PROMPT }}
+          prompt: ${{ env.CLAUDE_PROMPT }}
           show_full_output: ${{ vars.CLAUDE_FULL_OUTPUT || 'false' }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           claude_code_oauth_token: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
