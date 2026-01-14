@@ -46,10 +46,14 @@ def add_tools(mcp: FastMCP, logger=None):
             req = requests.get(
                 f"{addr}/controller",
                 params=pms,
-                timeout=10,
+                timeout=5,
             )
-            rdt = json.loads(req.text.split()) or {}
-            return rdt
+            rdt = json.loads(req.text.strip()) or {}
+            if rdt:
+                return {
+                    "status_code": req.status_code,
+                    **rdt,
+                }
         except requests.exceptions.RequestException as exc:
             return {
                 "error": str(exc),
@@ -61,8 +65,8 @@ def add_tools(mcp: FastMCP, logger=None):
                 "text": req.text,
                 "addr": addr,
             }
-        finally:
-            return {
-                "status": req.reason if req else "Unknown",
-                "addr": addr,
-            }
+        return {
+            "status": req.reason if req else "Unknown",
+            "text": req.text if req else None,
+            "addr": addr,
+        }
