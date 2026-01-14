@@ -1,0 +1,71 @@
+name: Trading with Claude code
+
+on:
+  schedule:
+    - cron: '30 11 * * *'
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: Prompt for Claude code
+        default: ''
+      model:
+        description: Model for Claude code
+        default: ''
+
+env:
+  CLAUDE_PROMPT: ${{ inputs.prompt || secrets.CLAUDE_PROMPT || vars.CLAUDE_PROMPT }}
+
+jobs:
+  claude:
+    if: ${{ env.CLAUDE_PROMPT }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    steps:
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: false
+
+      - name: Set up Python & Tools
+        run: |
+          echo "CURRENT_TIME=`date`" >> $GITHUB_ENV
+          uv python install
+          uv tool install -U mcp-vods
+          uv tool install -U mcp-notify
+          uv tool list
+
+      - name: Create MCP Config
+        run: |
+          cat > /tmp/mcp-config.json << 'EOF'
+          {
+            "mcpServers": {
+              "vods": {
+                "command": "uvx",
+                "args": ["mcp-vods"]
+              },
+              "notify": {
+                "command": "uvx",
+                "args": ["mcp-notify"]
+              }
+            }
+          }
+          EOF
+
+      - uses: anthropics/claude-code-action@v1
+        id: claude
+        timeout-minutes: 45
+        env:
+          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL || vars.ANTHROPIC_BASE_URL }}
+          ANTHROPIC_DEFAULT_OPUS_MODEL: ${{ inputs.model || vars.ANTHROPIC_DEFAULT_OPUS_MODEL || vars.CLAUDE_DEFAULT_MODEL }}
+          ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ inputs.model || vars.ANTHROPIC_DEFAULT_HAIKU_MODEL || vars.CLAUDE_DEFAULT_MODEL }}
+          ANTHROPIC_DEFAULT_SONNET_MODEL: ${{ inputs.model || vars.ANTHROPIC_DEFAULT_SONNET_MODEL || vars.CLAUDE_DEFAULT_MODEL }}
+        with:
+          prompt: ${{ env.CLAUDE_PROMPT }}
+          show_full_output: ${{ vars.CLAUDE_FULL_OUTPUT || 'false' }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          claude_code_oauth_token: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          claude_args: |
+            --mcp-config /tmp/mcp-config.json
+            --allowedTools "mcp__vods,mcp__notify"
+            --system-prompt "Current time: ${{ env.CURRENT_TIME }}"
