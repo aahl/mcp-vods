@@ -3,9 +3,9 @@
 <!-- mcp-name: io.github.aahl/mcp-vods -->
 
 
-## 📲 Install
+## 📲 安装
 
-### Method 1: uvx
+### 方式1: uvx
 ```yaml
 {
   "mcpServers": {
@@ -20,7 +20,7 @@
 }
 ```
 
-### Method 2: Docker
+### 方式2: Docker
 ```bash
 mkdir /opt/mcp-vods
 cd /opt/mcp-vods
@@ -36,6 +36,19 @@ docker-compose up -d
   }
 }
 ```
+
+### 方式3: Home Assistant OS [Add-on](https://gitee.com/hasscc/addons/tree/main/mcp-vods)
+[![添加加载项仓库](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgitee.com%2Fhasscc%2Faddons)
+
+
+### 快速开始
+- 添加到 Claude Code, 执行命令:
+  - `claude mcp add vods -- uvx mcp-vods`
+  - `claude mcp add vods --env MITV_LIST_CFG=客厅电视:192.168.1.11 -- uvx mcp-vods`
+- 添加到 OpenAI CodeX, 执行命令: `codex mcp add vods -- uvx mcp-vods`
+- 添加到 Cursor [![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/zh/install-mcp?name=vods&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJtY3Atdm9kcyJdfQ==)
+- 添加到 VS Code [![Install MCP Server](https://img.shields.io/badge/VS_Code-+?label=Add+MCP+Server&color=0098FF)](https://insiders.vscode.dev/redirect?url=vscode:mcp/install%3F%7B%22name%22%3A%22vods%22%2C%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mcp-vods%22%5D%7D)
+- 添加到 Cherry Studio [![Install MCP Server](https://img.shields.io/badge/Cherry_Studio-+?label=Add+MCP+Server&color=FF5F5F)](https://gitee.com/link?target=cherrystudio%3A%2F%2Fmcp%2Finstall%3Fservers%3DeyJtY3BTZXJ2ZXJzIjp7Im5vdGlmeSI6eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJtY3Atbm90aWZ5Il19fX0%3D)
 
 
 ### ⚙️ 环境变量

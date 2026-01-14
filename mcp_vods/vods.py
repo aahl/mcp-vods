@@ -172,8 +172,8 @@ class Vod(dict):
         return {
             "id": self.vod_id,
             "title": self.vod_name,
-            "intro": self.vod_blurb,
-            "desc": self.vod_content,
+            "intro": str(self.vod_blurb).strip(),
+            "desc": str(self.vod_content).strip(),
             "year": self.vod_year,
             "remark": self.vod_remarks,
             "poster": self.vod_pic,
