@@ -5,16 +5,18 @@ from fastmcp import FastMCP
 from starlette.middleware.cors import CORSMiddleware
 
 from . import (
-    moon,
     vods,
+    moon,
+    mitv,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 
-mcp = FastMCP(name="mcp-vods", version="0.1.2")
-moon.add_tools(mcp, _LOGGER)
+mcp = FastMCP(name="mcp-vods", version="0.1.3")
 vods.add_tools(mcp, _LOGGER)
+moon.add_tools(mcp, _LOGGER)
+mitv.add_tools(mcp, _LOGGER)
 
 
 def main():

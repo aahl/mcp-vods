@@ -51,6 +51,12 @@ docker-compose up -d
 - `LUNA_USERNAME`: LunaTV 登录账号，可选
 - `LUNA_PASSWORD`: LunaTV 登录密码，可选
 
+#### 小米电视/投影/机顶盒
+> 如何在小米电视上播放视频，至少需配置`MITV_LOCAL_IP`或`MITV_LIST_CFG`之一
+
+- `MITV_LOCAL_IP`: 单台小米电视本地IP，可选
+- `MITV_LIST_CFG`: 多台小米电视配置，可选，如: `客厅电视=192.168.1.11; 主卧电视=192.168.1.12`
+
 
 ## 🔗 Links
 - [LunaTV](https://github.com/MoonTechLab/LunaTV)
