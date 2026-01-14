@@ -48,7 +48,7 @@ docker-compose up -d
 - 添加到 OpenAI CodeX, 执行命令: `codex mcp add vods -- uvx mcp-vods`
 - 添加到 Cursor [![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/zh/install-mcp?name=vods&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJtY3Atdm9kcyJdfQ==)
 - 添加到 VS Code [![Install MCP Server](https://img.shields.io/badge/VS_Code-+?label=Add+MCP+Server&color=0098FF)](https://insiders.vscode.dev/redirect?url=vscode:mcp/install%3F%7B%22name%22%3A%22vods%22%2C%22command%22%3A%22uvx%22%2C%22args%22%3A%5B%22mcp-vods%22%5D%7D)
-- 添加到 Cherry Studio [![Install MCP Server](https://img.shields.io/badge/Cherry_Studio-+?label=Add+MCP+Server&color=FF5F5F)](https://gitee.com/link?target=cherrystudio%3A%2F%2Fmcp%2Finstall%3Fservers%3DeyJtY3BTZXJ2ZXJzIjp7Im5vdGlmeSI6eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJtY3Atbm90aWZ5Il19fX0%3D)
+- 添加到 Cherry Studio [![Install MCP Server](https://img.shields.io/badge/Cherry_Studio-+?label=Add+MCP+Server&color=FF5F5F)](https://gitee.com/link?target=cherrystudio%3A%2F%2Fmcp%2Finstall%3Fservers%3DeyJtY3BTZXJ2ZXJzIjp7InZvZHMiOnsiY29tbWFuZCI6InV2eCIsImFyZ3MiOlsibWNwLXZvZHMiXX19fQ%3D%3D)
 
 
 ### ⚙️ 环境变量
@@ -65,10 +65,10 @@ docker-compose up -d
 - `LUNA_PASSWORD`: LunaTV 登录密码，可选
 
 #### 小米电视/投影/机顶盒
-> 如需在小米电视上播放视频，至少需配置`MITV_LOCAL_IP`或`MITV_LIST_CFG`之一
+> 如需在小米电视上播放视频，要至少配置`MITV_LOCAL_IP`或`MITV_LIST_CFG`之一
 
 - `MITV_LOCAL_IP`: 单台小米电视本地IP，可选
-- `MITV_LIST_CFG`: 多台小米电视配置，可选，如: `客厅电视=192.168.1.11; 主卧电视=192.168.1.12`
+- `MITV_LIST_CFG`: 多台小米电视配置，可选，如: `客厅电视:192.168.1.11;主卧电视:192.168.1.12`
 
 
 ## 🔗 Links
