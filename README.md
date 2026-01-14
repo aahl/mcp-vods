@@ -2,6 +2,8 @@
 
 <!-- mcp-name: io.github.aahl/mcp-vods -->
 
+一个用于追剧/追番的MCP服务器，为AI提供搜索影视播放地址的能力，并支持在小米电视上直接播放。
+
 
 ## 📲 安装
 
@@ -9,11 +11,11 @@
 ```yaml
 {
   "mcpServers": {
-    "mcp-vods": {
+    "vods": {
       "command": "uvx",
       "args": ["mcp-vods"],
       "env": {
-        "SEARCH_CACHE_TTL": "5"
+        "MITV_LIST_CFG": "客厅电视:192.168.1.11"
       }
     }
   }
@@ -30,7 +32,7 @@ docker-compose up -d
 ```yaml
 {
   "mcpServers": {
-    "mcp-vods": {
+    "vods": {
       "url": "http://0.0.0.0:8821/mcp" # Streamable HTTP
     }
   }
@@ -54,12 +56,12 @@ docker-compose up -d
 ### ⚙️ 环境变量
 
 #### 免配置开箱即用
-- `VOD_CONFIG_URL`: [远程配置文件](https://github.com/hafrey1/LunaTV-config)URL，可选(默认已内置)
+- `VOD_CONFIG_URL`: 视频源[远程配置文件](https://github.com/hafrey1/LunaTV-config)URL，可选(默认已内置)
 - `SEARCH_CACHE_TTL`: 搜索缓存TTL，可选(默认5分钟)
 - `MAX_SEARCH_SITES`: 搜索次数限制，可选(默认10)
 
 #### 使用已部署的LunaTV/MoonTV
-- `MOON_BASE_URL`: 已部署的MoonTV服务地址，可选，如: http://localhost:3000
+- `MOON_BASE_URL`: 已部署的MoonTV服务地址，可选，如: `http://0.0.0.0:3000`
 - `LUNA_BASE_URL`: 已部署的LunaTV服务地址，可选
 - `LUNA_USERNAME`: LunaTV 登录账号，可选
 - `LUNA_PASSWORD`: LunaTV 登录密码，可选
