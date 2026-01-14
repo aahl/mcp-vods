@@ -74,5 +74,6 @@ docker-compose up -d
 
 
 ## 🔗 Links
+- https://zread.ai/aahl/mcp-vods
 - [LunaTV](https://github.com/MoonTechLab/LunaTV)
 - [MoonTV](https://github.com/aahl/MoonTV)
