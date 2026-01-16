@@ -1,7 +1,7 @@
 [project]
 name = "mcp-vods"
-version = "0.1.4"
-description = "MCP Server for Binge-watch / MoonTV / LunaTV. 一个用于追剧/追番的MCP服务器，为AI提供搜索影视播放地址的能力，并支持在小米电视上直接播放"
+version = "0.1.5"
+description = "MCP Server for Binge-watch / MoonTV / LunaTV. 一个用于追剧/追番的MCP服务器，为AI提供搜索影视播放地址的能力，并支持在小米等安卓电视/投影仪上直接播放"
 readme = "README.md"
 requires-python = ">=3.10"
 keywords = ["mcp", "llm", "tv", "movie", "video", "media", "binge"]

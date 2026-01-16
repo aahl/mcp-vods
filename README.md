@@ -56,7 +56,7 @@ docker-compose up -d
 ### ⚙️ 环境变量
 
 #### 免配置开箱即用
-- `VOD_CONFIG_URL`: 视频源[远程配置文件](https://github.com/hafrey1/LunaTV-config)URL，可选(默认已内置)
+- `VOD_CONFIG_URL`: LunaTV/MoonTV订阅源[远程配置文件](https://github.com/hafrey1/LunaTV-config)URL，可选(默认已内置)
 - `SEARCH_CACHE_TTL`: 搜索缓存TTL，可选(默认5分钟)
 - `MAX_SEARCH_SITES`: 搜索次数限制，可选(默认10)
 
@@ -71,6 +71,12 @@ docker-compose up -d
 
 - `MITV_LOCAL_IP`: 单台小米电视本地IP，可选
 - `MITV_LIST_CFG`: 多台小米电视配置，可选，如: `客厅电视:192.168.1.11;主卧电视:192.168.1.12`
+
+#### 其他安卓电视/投影/机顶盒
+> 如需在非小米安卓电视上播放视频，需要安装[TvBox](https://github.com/o0HalfLife0o/TVBoxOSC/releases)，并至少配置`TVBOX_LOCAL_IP`或`TVBOX_LIST_CFG`之一
+
+- `TVBOX_LOCAL_IP`: 单台电视本地IP，可选
+- `TVBOX_LIST_CFG`: 多台电视配置，可选，如: `客厅电视:192.168.1.11;主卧电视:192.168.1.12`
 
 
 ## 🔗 Links
