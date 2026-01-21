@@ -58,7 +58,7 @@ docker-compose up -d
 #### 免配置开箱即用
 - `VOD_CONFIG_URL`: LunaTV/MoonTV订阅源[远程配置文件](https://github.com/hafrey1/LunaTV-config)URL，可选(默认已内置)
 - `SEARCH_CACHE_TTL`: 搜索缓存TTL，可选(默认5分钟)
-- `MAX_SEARCH_SITES`: 搜索次数限制，可选(默认10)
+- `MAX_SEARCH_SITES`: 单次最多搜索站点数，可选(默认5)
 
 #### 使用已部署的LunaTV/MoonTV
 - `MOON_BASE_URL`: 已部署的MoonTV服务地址，可选，如: `http://0.0.0.0:3000`

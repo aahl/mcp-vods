@@ -14,7 +14,7 @@ from . import (
 _LOGGER = logging.getLogger(__name__)
 
 
-mcp = FastMCP(name="mcp-vods", version="0.1.5")
+mcp = FastMCP(name="mcp-vods", version="0.1.6")
 vods.add_tools(mcp, _LOGGER)
 moon.add_tools(mcp, _LOGGER)
 mitv.add_tools(mcp, _LOGGER)

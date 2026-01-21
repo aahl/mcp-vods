@@ -5,41 +5,74 @@ import requests
 from fastmcp import FastMCP
 from pydantic import Field
 from functools import cached_property
-from cachetools import cached, TTLCache
+from cachetools import TTLCache
 
 DFL_CONFIG_URL = "https://raw.githubusercontent.com/hafrey1/LunaTV-config/refs/heads/main/jin18.json"
 VOD_CONFIG_URL = os.getenv("VOD_CONFIG_URL", DFL_CONFIG_URL)
 VOD_API_TIMEOUT = int(os.getenv("VOD_API_TIMEOUT", 10))
 SEARCH_CACHE_TTL = int(os.getenv("SEARCH_CACHE_TTL", 300))
-MAX_SEARCH_SITES = int(os.getenv("MAX_SEARCH_SITES", 10))
+MAX_SEARCH_SITES = int(os.getenv("MAX_SEARCH_SITES", 5))
+
+CACHE_STORE = TTLCache(maxsize=2000, ttl=SEARCH_CACHE_TTL)
 
 
 def add_tools(mcp: FastMCP, logger=None):
 
     if not VOD_CONFIG_URL:
+        logger.error("Config URL is empty !")
         return
 
     SESSION = requests.session()
     CONFIGS = {}
-
-    resp = SESSION.get(VOD_CONFIG_URL)
-    try:
-        CONFIGS = resp.json() or {}
-    except Exception:
+    GH_PROXYS = [
+        "https://ghfast.top/raw.githubusercontent.com",
+        "https://gh-proxy.com/raw.githubusercontent.com",
+        "https://cfrp.hacs.vip/raw.githubusercontent.com",
+        "https://raw.githubusercontent.com",
+    ]
+    for proxy in GH_PROXYS:
+        try:
+            resp = SESSION.get(
+                VOD_CONFIG_URL.replace("https://raw.githubusercontent.com", proxy),
+                timeout=VOD_API_TIMEOUT,
+            )
+            if resp.status_code == 200:
+                CONFIGS = resp.json() or {}
+            if CONFIGS:
+                logger.info("Loaded configs from %s", VOD_CONFIG_URL)
+                break
+        except Exception:
+            pass
+    if not CONFIGS:
         logger.error("Failed to load configs from %s: %s", VOD_CONFIG_URL, exc_info=True)
         return
 
     @mcp.tool(
         title="搜索影视",
-        description="搜索电影、电视剧、综艺节目、动漫、番剧、短剧等。\n"
-                    "你可以说:\n"
+        description="搜索电影、电视剧、综艺节目、动漫、番剧、短剧等。如果超时可多重试几次。\n"
+                    "当用户说以下内容时可通过本工具搜索资源:\n"
                     "- 我想看《仙逆》最新一集\n"
                     "- 凡人修仙传更新到多少集了\n",
     )
     def vods_search(
         keyword: str = Field(description="搜索关键词，如电影名称，不要包含书名号、引号等"),
     ):
-        results = vod_search_cached(keyword)
+        results = []
+        queries = 0
+        apis = CONFIGS.get("api_site") or {}
+        for source, cfg in apis.items():
+            key = f"search-{source}-{keyword}"
+            if key in CACHE_STORE:
+                results.extend(CACHE_STORE[key])
+                logger.info("Cache hit: %s", [source, keyword])
+                continue
+
+            queries += 1
+            lst = vod_search_by_source(source, keyword)
+            CACHE_STORE[key] = lst
+            results.extend(lst)
+            if queries >= MAX_SEARCH_SITES:
+                break
         return yaml.dump(results, allow_unicode=True, sort_keys=False)
 
     @mcp.tool(
@@ -87,40 +120,36 @@ def add_tools(mcp: FastMCP, logger=None):
                 })
         return yaml.dump(data, allow_unicode=True, sort_keys=False)
 
-    @cached(cache=TTLCache(maxsize=200, ttl=SEARCH_CACHE_TTL))
-    def vod_search_cached(keyword):
+    def vod_search_by_source(source, keyword):
         results = []
-        apis = CONFIGS.get("api_site") or {}
-        queries = 0
-        for source, cfg in apis.items():
-            queries += 1
-            try:
-                resp = SESSION.get(
-                    cfg.get("api"),
-                    params={
-                        "ac": "videolist",
-                        "wd": keyword,
-                    },
-                    timeout=VOD_API_TIMEOUT,
-                )
-                data = json.loads(resp.text.strip()) or {}
-            except Exception as exc:
-                logger.error("Failed search video via %s: %s", source, exc)
+        cfg = CONFIGS.get("api_site", {}).get(source)
+        if not cfg:
+            return results
+        try:
+            resp = SESSION.get(
+                cfg.get("api"),
+                params={
+                    "ac": "videolist",
+                    "wd": keyword,
+                },
+                timeout=VOD_API_TIMEOUT,
+            )
+            data = json.loads(resp.text.strip()) or {}
+        except Exception as exc:
+            logger.error("Failed search video via %s: %s", source, exc)
+            return results
+        lst = data.get("list", [])
+        for item in lst:
+            vod = Vod(item)
+            if not vod.episode_list:
+                logger.warning("No episode list via %s: %s", source, vod.format())
                 continue
-            lst = data.get("list", [])
-            for item in lst:
-                vod = Vod(item)
-                if not vod.episode_list:
-                    logger.warning("No episode list via %s: %s", source, vod.format())
-                    continue
-                results.append({
-                    **vod.format(),
-                    "episodes_newest": vod.episodes_newest(),
-                    "source": source,
-                    "source_name": cfg.get("name") or source,
-                })
-            if queries >= MAX_SEARCH_SITES:
-                break
+            results.append({
+                **vod.format(),
+                "episodes_newest": vod.episodes_newest(1),
+                "source": source,
+                "source_name": cfg.get("name") or source,
+            })
         return results
 
 
@@ -169,14 +198,19 @@ class Vod(dict):
         return self.episode_dict.get(str(episode))
 
     def format(self):
+        intro = str(self.vod_blurb).strip()
+        desc = str(self.vod_content).strip()
+        if intro and intro in desc:
+            intro = ""
         return {
             "id": self.vod_id,
             "title": self.vod_name,
-            "intro": str(self.vod_blurb).strip(),
-            "desc": str(self.vod_content).strip(),
+            "intro": intro,
+            "desc": desc,
             "year": self.vod_year,
             "remark": self.vod_remarks,
             "poster": self.vod_pic,
             "type_name": self.type_name,
+            "update_at": self.vod_time,
             "episodes_count": len(self.episodes),
         }
