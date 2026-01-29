@@ -1,21 +1,19 @@
 import os
 import yaml
-import requests
+import aiohttp
 from fastmcp import FastMCP
 from pydantic import Field
 
 MOON_BASE_URL = str(os.getenv("MOON_BASE_URL", "") or os.getenv("LUNA_BASE_URL", "")).rstrip("/")
 
 
-def add_tools(mcp: FastMCP, logger=None):
+async def add_tools(mcp: FastMCP, session: aiohttp.ClientSession, logger=None):
 
     if not MOON_BASE_URL:
         return
 
-    SESSION = requests.session()
-
     if pwd := os.getenv("LUNA_PASSWORD"):
-        SESSION.post(
+        await session.post(
             f"{MOON_BASE_URL}/api/login",
             json={
                 "username": os.getenv("LUNA_USERNAME", ""),
@@ -30,19 +28,19 @@ def add_tools(mcp: FastMCP, logger=None):
                     "- 我想看《仙逆》最新一集\n"
                     "- 凡人修仙传更新到多少集了\n",
     )
-    def moon_search(
+    async def moon_search(
         keyword: str = Field(description="搜索关键词，如电影名称，不要包含书名号、引号等"),
     ):
-        resp = SESSION.get(
+        async with session.get(
             f"{MOON_BASE_URL}/api/search",
             params={
                 "q": keyword,
             },
-        )
-        try:
-            data = resp.json() or {}
-        except Exception as exc:
-            return {"text": resp.text, "error": str(exc)}
+        ) as resp:
+            try:
+                data = await resp.json() or {}
+            except Exception as exc:
+                return {"text": await resp.text(), "error": str(exc)}
         results = data.get("results", [])
         for item in results:
             episodes = item.pop("episodes") or []
@@ -57,22 +55,22 @@ def add_tools(mcp: FastMCP, logger=None):
         title="影视详情",
         description="获取电影、电视剧、综艺节目、动漫、番剧、短剧等节目的详情及播放地址",
     )
-    def moon_detail(
+    async def moon_detail(
         id: str = Field(description="影视节目ID，可通过搜索工具(moon_search)获取"),
         source: str = Field(description="数据来源(source)"),
         episode: int = Field(0, description="剧集(第N集)，获取最新一集传`0`，获取全部剧集传`-1`"),
     ):
-        resp = SESSION.get(
+        async with session.get(
             f"{MOON_BASE_URL}/api/detail",
             params={
                 "source": source,
                 "id": id,
             },
-        )
-        try:
-            data = resp.json() or {}
-        except Exception as exc:
-            return {"text": resp.text, "error": str(exc)}
+        ) as resp:
+            try:
+                data = await resp.json() or {}
+            except Exception as exc:
+                return {"text": await resp.text(), "error": str(exc)}
         episode = int(episode)
         episodes = data.get("episodes") or []
         episodes = dict(zip(range(1, len(episodes) + 1), episodes))

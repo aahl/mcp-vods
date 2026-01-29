@@ -1,6 +1,8 @@
 import os
 import logging
 import argparse
+import asyncio
+import aiohttp
 from fastmcp import FastMCP
 from starlette.middleware.cors import CORSMiddleware
 
@@ -14,14 +16,7 @@ from . import (
 _LOGGER = logging.getLogger(__name__)
 
 
-mcp = FastMCP(name="mcp-vods", version="0.1.7")
-vods.add_tools(mcp, _LOGGER)
-moon.add_tools(mcp, _LOGGER)
-mitv.add_tools(mcp, _LOGGER)
-tvbox.add_tools(mcp, _LOGGER)
-
-
-def main():
+async def main():
     port = int(os.getenv("PORT", 0)) or 80
     parser = argparse.ArgumentParser(description="MCP Server for Binge-watch")
     parser.add_argument("--http", action="store_true", help="Use streamable HTTP mode instead of stdio")
@@ -29,21 +24,30 @@ def main():
     parser.add_argument("--port", type=int, default=port, help=f"Port to listen on (default: {port})")
 
     args = parser.parse_args()
-    mode = os.getenv("TRANSPORT") or ("http" if args.http else None)
-    if mode in ["http", "sse"]:
-        app = mcp.http_app(transport=mode)
-        app.add_middleware(
-            CORSMiddleware,
-            allow_origins=["*"],
-            allow_credentials=True,
-            allow_methods=["GET", "POST", "OPTIONS"],
-            allow_headers=["*"],
-            expose_headers=["mcp-session-id", "mcp-protocol-version"],
-            max_age=86400,
-        )
-        mcp.run(transport=mode, host=args.host, port=args.port)
-    else:
-        mcp.run()
+
+    mcp = FastMCP(name="mcp-vods", version="0.1.8")
+
+    async with aiohttp.ClientSession() as session:
+        await vods.add_tools(mcp, session, _LOGGER)
+        await moon.add_tools(mcp, session, _LOGGER)
+        await mitv.add_tools(mcp, session, _LOGGER)
+        await tvbox.add_tools(mcp, session, _LOGGER)
+
+        mode = os.getenv("TRANSPORT") or ("http" if args.http else None)
+        if mode in ["http", "sse"]:
+            app = mcp.http_app(transport=mode)
+            app.add_middleware(
+                CORSMiddleware,
+                allow_methods=["GET", "POST", "OPTIONS"],
+                allow_headers=["*"],
+                allow_origins=["*"],
+                allow_credentials=True,
+                expose_headers=["mcp-session-id", "mcp-protocol-version"],
+                max_age=86400,
+            )
+            await mcp.run_async(transport=mode, host=args.host, port=args.port)
+        else:
+            await mcp.run_async()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

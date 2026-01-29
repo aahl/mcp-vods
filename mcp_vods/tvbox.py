@@ -1,6 +1,7 @@
 import os
 import json
-import requests
+import aiohttp
+import asyncio
 from fastmcp import FastMCP
 from pydantic import Field
 
@@ -8,7 +9,7 @@ TVBOX_LOCAL_IP = str(os.getenv("TVBOX_LOCAL_IP", "")).strip()
 TVBOX_LIST_CFG = str(os.getenv("TVBOX_LIST_CFG", "")).strip()
 
 
-def add_tools(mcp: FastMCP, logger=None):
+async def add_tools(mcp: FastMCP, session: aiohttp.ClientSession, logger=None):
 
     if not (TVBOX_LOCAL_IP or TVBOX_LIST_CFG):
         return
@@ -17,7 +18,7 @@ def add_tools(mcp: FastMCP, logger=None):
         title="通过TvBox播放影视",
         description=f"在电视(投影仪/机顶盒)上播放远程影视URL，需要安装TvBox。\n{TVBOX_LIST_CFG}",
     )
-    def tvbox_play_media(
+    async def tvbox_play_media(
         url: str = Field(description="影视资源完整URL，如: m3u8/mp4 地址等"),
         addr: str = Field("", description="电视IP或Base URL"),
     ):
@@ -29,23 +30,24 @@ def add_tools(mcp: FastMCP, logger=None):
             addr = f"http://{addr}:9978"
         else:
             addr = addr.rstrip("/")
-        req = None
+        txt = None
         try:
-            req = requests.post(
+            req = await session.post(
                 f"{addr}/action",
                 params={
                     "do": "push",
                     "url": url,
                 },
-                timeout=5,
+                timeout=aiohttp.ClientTimeout(total=5),
             )
-            rdt = json.loads(req.text.strip()) or {}
+            txt = (await req.text()).strip()
+            rdt = json.loads(txt) or {}
             if rdt:
                 return {
-                    "status_code": req.status_code,
+                    "status_code": req.status,
                     **rdt,
                 }
-        except requests.exceptions.RequestException as exc:
+        except (aiohttp.ClientError, asyncio.TimeoutError) as exc:
             return {
                 "error": str(exc),
                 "addr": addr,
@@ -53,11 +55,11 @@ def add_tools(mcp: FastMCP, logger=None):
             }
         except json.decoder.JSONDecodeError:
             return {
-                "text": req.text,
+                "text": txt,
                 "addr": addr,
             }
         return {
             "status": req.reason if req else "Unknown",
-            "text": req.text if req else None,
+            "text": txt,
             "addr": addr,
         }
