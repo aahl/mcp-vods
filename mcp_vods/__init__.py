@@ -16,7 +16,7 @@ from . import (
 _LOGGER = logging.getLogger(__name__)
 
 
-async def main():
+async def async_main():
     port = int(os.getenv("PORT", 0)) or 80
     parser = argparse.ArgumentParser(description="MCP Server for Binge-watch")
     parser.add_argument("--http", action="store_true", help="Use streamable HTTP mode instead of stdio")
@@ -25,7 +25,7 @@ async def main():
 
     args = parser.parse_args()
 
-    mcp = FastMCP(name="mcp-vods", version="0.1.8")
+    mcp = FastMCP(name="mcp-vods", version="0.1.9")
 
     async with aiohttp.ClientSession() as session:
         await vods.add_tools(mcp, session, _LOGGER)
@@ -49,5 +49,8 @@ async def main():
         else:
             await mcp.run_async()
 
+def main():
+    asyncio.run(async_main())
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
