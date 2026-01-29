@@ -59,11 +59,16 @@ async def add_tools(mcp: FastMCP, session: aiohttp.ClientSession, logger=None):
     )
     async def vods_search(
         keyword: str = Field(description="搜索关键词，如电影名称，不要包含书名号、引号等"),
+        page: int = Field(1, description="页码，从1开始，对应源站列表的分页"),
     ):
         results = []
         queries = 0
+        start_idx = (page - 1) * MAX_SEARCH_SITES
+        ended_idx = start_idx + MAX_SEARCH_SITES
+
         apis = CONFIGS.get("api_site") or {}
-        for source, cfg in apis.items():
+        api_items = list(apis.items())
+        for source, cfg in api_items[start_idx:ended_idx]:
             key = f"search-{source}-{keyword}"
             if key in CACHE_STORE:
                 results.extend(CACHE_STORE[key])
@@ -76,15 +81,20 @@ async def add_tools(mcp: FastMCP, session: aiohttp.ClientSession, logger=None):
             results.extend(lst)
             if queries >= MAX_SEARCH_SITES:
                 break
+
+        total_pages = (len(api_items) + MAX_SEARCH_SITES - 1) // MAX_SEARCH_SITES
         if not results:
-            return "未找到相关结果"
+            return f"第{page}页未找到相关结果，共{total_pages}页"
 
         output = io.StringIO()
         writer = csv.DictWriter(output, fieldnames=list(results[0].keys()))
         writer.writeheader()
         for item in results:
             writer.writerow(item)
-        text = output.getvalue()
+        text = "\n\n".join([
+            output.getvalue(),
+            f"# 当前第{page}页，共{total_pages}页",
+        ])
         output.close()
         return ToolResult(content=text)
 
