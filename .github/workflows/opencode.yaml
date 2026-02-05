@@ -44,8 +44,8 @@ jobs:
       - name: Run OpenCode
         if: ${{ env.CLAUDE_PROMPT }}
         run: |
-          opencode mcp list
-          opencode run -m opencode/kimi-k2.5-free "${{ env.FINAL_PROMPT }}"
+          opencode mcp list >> $GITHUB_STEP_SUMMARY
+          opencode run -m opencode/kimi-k2.5-free "${{ env.FINAL_PROMPT }}" >> $GITHUB_STEP_SUMMARY
         env:
           FINAL_PROMPT: |
             Current time: ${{ env.CURRENT_TIME }}
