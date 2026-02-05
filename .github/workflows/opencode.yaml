@@ -1,0 +1,69 @@
+name: Run OpenCode
+
+on:
+  schedule:
+    - cron: '00 11 * * *'
+    - cron: '50 11 * * *'
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: Prompt
+        default: ''
+      model:
+        description: Model
+        default: ''
+
+jobs:
+  agent:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+    env:
+      CLAUDE_PROMPT: ${{ inputs.prompt || secrets.CLAUDE_PROMPT || vars.CLAUDE_PROMPT }}
+    steps:
+      - name: Install uv
+        if: ${{ env.CLAUDE_PROMPT }}
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: false
+
+      - name: Set up Python & Tools
+        if: ${{ env.CLAUDE_PROMPT }}
+        run: |
+          echo "CURRENT_TIME=`date`" >> $GITHUB_ENV
+          uv python install
+          uv tool install -U mcp-vods
+          uv tool install -U mcp-notify
+          uv tool list
+
+      - name: Install OpenCode
+        if: ${{ env.CLAUDE_PROMPT }}
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+
+      - name: Run OpenCode
+        if: ${{ env.CLAUDE_PROMPT }}
+        run: |
+          opencode mcp list
+          opencode run -m opencode/kimi-k2.5-free "${{ env.FINAL_PROMPT }}"
+        env:
+          FINAL_PROMPT: |
+            Current time: ${{ env.CURRENT_TIME }}
+            ${{ env.CLAUDE_PROMPT }}
+          OPENCODE_CONFIG_CONTENT: |
+            {
+              "$schema": "https://opencode.ai/config.json",
+              "mcp": {
+                "vods": {
+                  "type": "local",
+                  "enabled": true,
+                  "command": ["uvx", "mcp-vods"]
+                },
+                "notify": {
+                  "type": "local",
+                  "enabled": true,
+                  "command": ["uvx", "mcp-notify"]
+                }
+              }
+            }
+        timeout-minutes: 45

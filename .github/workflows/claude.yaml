@@ -2,14 +2,14 @@ name: Run Claude code
 
 on:
   schedule:
-    - cron: '30 11 * * *'
+    - cron: '30 11 1 1 1'
   workflow_dispatch:
     inputs:
       prompt:
-        description: Prompt for Claude code
+        description: Prompt for
         default: ''
       model:
-        description: Model for Claude code
+        description: Model for
         default: ''
 
 jobs:
