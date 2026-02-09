@@ -35,6 +35,7 @@ jobs:
           uv tool install -U mcp-vods
           uv tool install -U mcp-notify
           uv tool list
+          npx skills add aahl/skills -y -g --all -a opencode
 
       - name: Install OpenCode
         if: ${{ env.CLAUDE_PROMPT }}
